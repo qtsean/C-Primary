@@ -33,11 +33,8 @@ int wanshu(int a)
 	int t = 1;
 	int p = a;
 	int sum = 0;
-	if (a == 1)
-	{
-		return 0;
-	}
-	else {
+	
+	
 		while (t <a)
 		{
 			if (a%t == 0)
@@ -55,5 +52,5 @@ int wanshu(int a)
 				return 0;
 			}
 		}
-	}
+	
 
