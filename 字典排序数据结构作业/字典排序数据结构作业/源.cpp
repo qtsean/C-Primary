@@ -12,8 +12,14 @@ public:
 	void insert(const pair<K, E>& thePair);
 	void erase(const K& theKey);
 	SAL(pair<K, E>*a, int length, int size);
-
+	void show();
 };
+template<class K,class E>
+void SAL<K, E>::show() {
+	for (int i = 0; i < length; i++)
+		cout << arr[i].first << "   " << arr[i].second << endl;
+	cout << "length = " << length <<"      "<< "size = " << size << endl << endl;
+}
 template<class K,class E>
 void SAL<K, E>::erase(const K& theKey) {
 	for (int i = 0; i < length; i++) {
@@ -21,9 +27,17 @@ void SAL<K, E>::erase(const K& theKey) {
 			for (int j = i; j < length; j++) {
 				arr[j] = arr[j + 1];
 			}
+			length--;
 		}
 	}
-	length--;
+	for (int i = 0; i < length; i++) {
+		if (theKey == arr[i].first) {
+			for (int j = i; j < length; j++) {
+				arr[j] = arr[j + 1];
+			}
+			length--;
+		}
+	}
 }
 template<class K,class E>
 void SAL<K,E>::insert(const pair<K, E>& thePair){
@@ -37,11 +51,12 @@ void SAL<K,E>::insert(const pair<K, E>& thePair){
 		arr = temp;
 	}
 	for (int i = 0; i < length; i++) {
-		if (thePair.first >= arr[i].first) {
+		if (thePair.first <= arr[i].first) {
 			for (int j = length - 1; j >= i; j--) {
 				arr[j + 1] = arr[j];
 			}
 			arr[i] = thePair;
+			break;
 		}
 	}
 	length++;
@@ -72,16 +87,29 @@ int main() {
 	SAL<int, char> test(a, 5, 10);
 	for (int i = 0; i < 5; i++)
 		cout << a[i].first << "    " << a[i].second << endl;
-	cout << test.find(3).second<< endl;
-	test.insert(a[5]);
-	test.insert(a[5]);
-	test.insert(a[5]);
-	test.insert(a[5]);
-	test.insert(a[5]);
-	test.insert(a[5]);
-	test.insert(a[5]);
+	cout << test.find(3).second << endl << endl;
+	test.show();
 	test.insert(a[1]);
-	cout << test.find(1).second << endl;
+	test.show();
+	test.insert(a[2]);
+	test.show();
+	test.insert(a[3]);
+	test.show();
+	test.insert(a[4]);
+	test.show();
+	test.insert(a[3]);
+	test.show();
+	test.insert(a[2]);
+	test.show();
+	test.insert(a[1]);
+	test.show();
+	test.insert(a[0]);
+	cout << test.find(3).second << endl << endl;
+	test.show();
+	test.insert(a[3]);
+	test.show();
+	test.erase(2);
+	test.show();
 	system("pause");
 	return 0;
 
