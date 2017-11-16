@@ -13,7 +13,7 @@ public:class LinkIterator
 	chain * ltr;
 	*/
 public:
-	chain * ltr;
+	chain * ltr;											//迭代器
 	LinkIterator(chain * ltr)
 	{
 		this->ltr = ltr;
@@ -42,33 +42,33 @@ public:
 	}
 };
 private:
-	chain * firstnode;
-	chain * secondchain;
+	chain * firstnode;													//双链表类
+	chain * secondchain;												//第二个链表
 public:
 	AC(int *a, int n);
-	chain * gethead();
-	void inserthead(int newelement);
-	void showreverse();
-	void show();
-	void erase(int index);
-	int search(int number);
-	void getsecondchain(int *a, int n);
-	void merge();
-	chain* sort(chain * sorted);
-	void lrshow(AC::LinkIterator it1);
+	chain * gethead();													//得到链表的第一节
+	void inserthead(int newelement);									//表头插入	
+	void showreverse();													//反序输出	
+	void show();														//正序输出
+	void erase(int index);												//删除指定位置	
+	int search(int number);												//搜索
+	void getsecondchain(int *a, int n);									//输入第二个链表
+	void merge();														//有序链表合并
+	chain* sort(chain * sorted);										//对无序链表排序
+	void lrshow(AC::LinkIterator it1);									//用迭代器反向输出
 };
-void AC::lrshow(AC::LinkIterator it1) {
+void AC::lrshow(AC::LinkIterator it1) {									//递归思想
 	if (it1.ltr->next != NULL) {
 		lrshow(it1--);
 	}
 	cout << it1.ltr->element << "\t";
 }
-void RS(chain*node) {
+void RS(chain*node) {													//递归
 	if (node->next != NULL)
 		RS(node->next);
 	cout << node->element << "\t";
 }
-void AC::showreverse() {
+void AC::showreverse() {												//递归，调用了RS函数
 	cout << "反序输出链表如下" << endl << endl;
 	chain * currentnode = firstnode;
 	RS(currentnode);
@@ -78,7 +78,7 @@ chain * AC::gethead() {
 	return firstnode;
 }
 chain * AC::sort(chain * sorted) {
-	chain * temp = new chain;
+	chain * temp = new chain;											//为防止排序操作破坏原链表，先把链表复制入一个新链表
 	//temp->element = sorted->element;
 	chain* scurrentnode = sorted;
 	chain* tcurrentnode = temp;
@@ -93,7 +93,7 @@ chain * AC::sort(chain * sorted) {
 		}
 		scurrentnode = scurrentnode->next;
 	}
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 100; i++) {										//循环，来排序
 		bool changed = 0;
 		AC::LinkIterator ts = temp;
 		while (ts--.ltr != NULL) {
@@ -118,7 +118,7 @@ chain * AC::sort(chain * sorted) {
 	return temp;
 }
 void AC::merge() {
-	chain * currentnode1 = sort(firstnode);
+	chain * currentnode1 = sort(firstnode);													//设两个迭代器，遍历两个链表，再从小到大插入到新的链表
 	chain * currentnode2 = sort(secondchain);
 	cout << "有序链表一如下" << endl << endl;
 	LinkIterator o1 = currentnode1;
@@ -176,14 +176,14 @@ void AC::merge() {
 		}
 	}
 	cout << "合并后的链表如下" << endl << endl;
-	while (temphead != NULL) {
+	while (temphead != NULL) {														//输出排序合并后的链表
 		cout << temphead->element << "\t";
 		temphead = temphead->next;
 	}
 	cout << endl << endl;
 
 }
-void AC::getsecondchain(int *a, int n) {
+void AC::getsecondchain(int *a, int n) {											//对第二个链表的赋值操作
 	secondchain = new chain;
 	secondchain->element = a[0];
 	secondchain->next = new chain;
@@ -207,7 +207,7 @@ void AC::getsecondchain(int *a, int n) {
 	*/
 	cout << endl;
 }
-int AC::search(int number) {
+int AC::search(int number) {														//遍历，直到找到目标元素，并返回索引值+1
 	chain * currentnode = firstnode;
 	for (int i = 0; currentnode != NULL; i++, currentnode = currentnode->next) {
 		if (currentnode->element == number) {
@@ -216,11 +216,11 @@ int AC::search(int number) {
 	}
 	return 0;
 }
-void AC::erase(int index) {
+void AC::erase(int index) {															//删除一个节点，把前一个链表的next改为后一个链表的地址
 	chain * currentnode = firstnode;
 	chain * lastnode = NULL;
 	bool found = 1;
-	if (index == 0) {
+	if (index == 0) {															//分是不是第一个节点来分类讨论
 		chain * temp = firstnode;
 		firstnode = firstnode->next;
 		delete temp;
@@ -242,7 +242,7 @@ void AC::erase(int index) {
 	}
 
 }
-void AC::show() {
+void AC::show() {																//正序输出链表，用来检查其他操作的正确性
 	cout << "正序输出链表如下" << endl << endl;
 	chain* currentnode = firstnode;
 	while (currentnode != NULL) {
@@ -251,7 +251,7 @@ void AC::show() {
 	}
 	cout << endl << endl;
 }
-AC::AC(int *a, int n) {
+AC::AC(int *a, int n) {															//构造函数
 	firstnode = new chain;
 	firstnode->element = a[0];
 	firstnode->next = new chain;
@@ -268,7 +268,7 @@ AC::AC(int *a, int n) {
 	}
 }
 
-void AC::inserthead(int newelement) {
+void AC::inserthead(int newelement) {							//从头插入，把firstnode变为新建的节点，并且next设置为原firstnode
 	chain * temp = new chain;
 	temp->element = newelement;
 	temp->next = firstnode;
