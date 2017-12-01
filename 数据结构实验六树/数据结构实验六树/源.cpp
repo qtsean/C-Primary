@@ -19,11 +19,39 @@ public:
 	void pre(btnode* current);
 	void in(btnode* current);
 	void post(btnode* current);
+	void level(btnode* current);
 	void createque();
 	void push(btnode* current);
 	void pop();
+	bool que_empty();
+	btnode* gettail();
 	btnode* getnode();
 };
+btnode* bttree::gettail() {
+	return queue[size];
+}
+bool bttree::que_empty() {
+	if (-1 == size) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+void bttree::level(btnode* current) {
+	push(current);
+	while (que_empty()) {
+		cout << current->element << endl;
+		if (current->left != NULL) {
+			push(current->left);
+		}
+		if (current->right != NULL) {
+			push(current->right);
+		}
+		pop();
+		current = gettail();
+	}
+}
 void bttree::pop() {
 	if (-1 == size) {
 		cout << "队列已空" << endl;
@@ -33,8 +61,17 @@ void bttree::pop() {
 	}
 }
 void bttree::push(btnode* current) {
-	size++;
-	queue[size] = current;
+	if (size == -1) {
+		size++;
+		queue[0] = current;
+	}
+	else {
+		for (int i = size; i >= 0; i--) {
+			queue[i + 1] = queue[i];
+		}
+		queue[0] = current;
+		size++;
+	}
 }
 void bttree::createque() {
 	size = -1;
@@ -113,9 +150,15 @@ int main() {
 	bttree test;
 	cout << "创建二叉树,输入#号自动填充剩余空节点" << endl;
 	test.create();
+	cout << "前序遍历" << endl;
 	test.pre(test.getnode());
+	cout << "中序遍历" << endl;
 	test.in(test.getnode());
+	cout << "后序遍历" << endl;
 	test.post(test.getnode());
+	cout << "层次遍历" << endl;
+	test.createque();
+	test.level(test.getnode());
 	test.createque();
 
 	system("pause");
