@@ -23,10 +23,30 @@ public:
 	void createque();
 	void push(btnode* current);
 	void pop();
+	int countnode(btnode* current);
+	int height(btnode* current);
 	bool que_empty();
 	btnode* gettail();
 	btnode* getnode();
 };
+int bttree::height(btnode* current) {
+	int hl = 0;
+	int hr = 0;
+	if (current == NULL)
+		return 0;
+	hl = height(current->left);
+	hr = height(current->right);
+	return hl + hr + 1;
+}
+int bttree::countnode(btnode* current) {
+	int cl = 0;
+	int cr = 0;
+	if (current == NULL)
+		return 0;
+	cl = countnode(current->left);
+	cr = countnode(current->right);
+	return cl + cr + 1;
+}
 btnode* bttree::gettail() {
 	return queue[size];
 }
@@ -159,7 +179,10 @@ int main() {
 	cout << "层次遍历" << endl;
 	test.createque();
 	test.level(test.getnode());
-	test.createque();
+	cout << "计算节点数量" << endl;
+	cout << "节点数量为： " << test.countnode(test.getnode()) << endl;
+	cout << "计算高度" << endl;
+	cout << "高度为： " << test.height(test.getnode()) << endl;
 
 	system("pause");
 	return 0;
