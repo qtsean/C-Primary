@@ -36,7 +36,10 @@ int bttree::height(btnode* current) {
 		return 0;
 	hl = height(current->left);
 	hr = height(current->right);
-	return hl + hr + 1;
+	if (hl >= hr)
+		return hl + 1;
+	else
+		return hr + 1;
 }
 int bttree::countnode(btnode* current) {
 	int cl = 0;
