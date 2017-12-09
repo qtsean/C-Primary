@@ -22,7 +22,94 @@ public:
 	void level(btnode*current);
 	btnode* getnode();
 	void initialize();
+	void insert(int ins);
+	void erase();
+	void sort();
 };
+void maxheap::sort() {
+	while (root->left!= NULL) {
+		cout << root->element << endl;
+		erase();
+	}
+	cout << root->element << endl;
+}
+void maxheap::erase() {
+	que_delete();
+	btnode* current = root;
+	que_push(current);
+	while (que_empty()) {
+		if (current->left != NULL) {
+			que_push(current->left);
+		}
+		if (current->right != NULL) {
+			que_push(current->right);
+		}
+		que_pop();
+		current = que_gettail();
+		if (que_size == 0 && current->left == NULL&&current->right == NULL)
+			break;
+	}
+	root->element = current->element;
+	current->element = -1;
+	que_delete();
+	current = root;
+	que_push(current);
+	while (que_empty()) {
+		if (current->left != NULL) {
+			if (current->left->element == -1) {
+				current->left = NULL;
+				size--;
+				break;
+			}
+			que_push(current->left);
+		}
+		if (current->right != NULL) {
+			if (current->right->element == -1) {
+				current->right = NULL;
+				size--;
+				break;
+			}
+			que_push(current->right);
+		}
+		que_pop();
+		current = que_gettail();
+	}
+	initialize();
+}
+void maxheap::insert(int ins) {
+	delete que;
+	size++;
+	que = new btnode*[size];
+	btnode* current = root;
+	que_push(current);
+	while (1) {
+		if (current->left != NULL) {
+			que_push(current->left);
+		}
+		if (current->right != NULL) {
+			que_push(current->right);
+		}
+		if (current->left == NULL || current->right == NULL) {
+			if (current->left == NULL) {
+				current->left = new btnode;
+				current->left->left = NULL;
+				current->left->right = NULL;
+				current->left->element = ins;
+				break;
+			}
+			else {
+				current->right = new btnode;
+				current->right->left = NULL;
+				current->right->right = NULL;
+				current->right->element = ins;
+				break;
+			}
+		}
+		que_pop();
+		current = que_gettail();
+	}
+	initialize();
+}
 void maxheap::initialize() {
 	while (1) {
 		int change = 0;
@@ -31,20 +118,39 @@ void maxheap::initialize() {
 		que_push(current);
 		while (que_empty()) {
 			if (current->left!=NULL&&current->element < current->left->element || current->right!=NULL&&current->element < current->right->element) {
-				if (current->left!=NULL&&current->left->element > current->right->element) {
-					int temp = current->left->element;
-					current->left->element = current->element;
-					current->element = temp;
-					change = 1;
-					break;
+				
+				if (current->right != NULL) {
+					if (current->left != NULL&&current->left->element > current->right->element) {
+						int temp = current->left->element;
+						current->left->element = current->element;
+						current->element = temp;
+						change = 1;
+						break;
+					}
+					if (current->left != NULL&&current->left->element < current->right->element) {
+						int temp = current->right->element;
+						current->right->element = current->element;
+						current->element = temp;
+						change = 1;
+						break;
+					}
 				}
+
+				else {
+						int temp = current->left->element;
+						current->left->element = current->element;
+						current->element = temp;
+						change = 1;
+						break;
+				}
+				/*
 				else {
 					int temp = current->right->element;
 					current->right->element = current->element;
 					current->element = temp;
 					change = 1;
 					break;
-				}
+				}*/
 			}
 			if (current->left != NULL) {
 				que_push(current->left);
@@ -166,6 +272,15 @@ int main() {
 	test.initialize();
 	cout << "初始化后： " << endl;
 	test.level(test.getnode());
+	test.insert(11);
+	cout << "插入11后：" << endl;
+	test.level(test.getnode());
+	cout << "删除堆顶后： " << endl;
+	test.erase();
+	test.level(test.getnode());
+	cout << "对剩下的堆进行排序： " << endl;
+	test.sort();
+	//test.level(test.getnode());
 	system("pause");
 	return 0;
 }
