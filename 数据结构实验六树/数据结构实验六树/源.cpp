@@ -16,17 +16,17 @@ private:
 public:
 	bttree();
 	btnode* create();
-	void pre(btnode* current);
-	void in(btnode* current);
-	void post(btnode* current);
-	void level(btnode* current);
-	void createque();
+	void pre(btnode* current);			//前序
+	void in(btnode* current);			//中序	
+	void post(btnode* current);			//后序
+	void level(btnode* current);		//层次
+	void createque();					//创建层次遍历用的表
 	void push(btnode* current);
 	void pop();
-	int countnode(btnode* current);
-	int height(btnode* current);
-	bool que_empty();
-	btnode* gettail();
+	int countnode(btnode* current);		//统计所有节点
+	int height(btnode* current);		//只计较多一侧的节点数
+	bool que_empty();					//判断队列是否空
+	btnode* gettail();					//队尾元素
 	btnode* getnode();
 };
 int bttree::height(btnode* current) {
@@ -36,7 +36,7 @@ int bttree::height(btnode* current) {
 		return 0;
 	hl = height(current->left);
 	hr = height(current->right);
-	if (hl >= hr)
+	if (hl >= hr)						//返回较多一侧的节点数
 		return hl + 1;
 	else
 		return hr + 1;
@@ -48,7 +48,7 @@ int bttree::countnode(btnode* current) {
 		return 0;
 	cl = countnode(current->left);
 	cr = countnode(current->right);
-	return cl + cr + 1;
+	return cl + cr + 1;					//返回两侧的节点和
 }
 btnode* bttree::gettail() {
 	return queue[size];
@@ -63,7 +63,7 @@ bool bttree::que_empty() {
 }
 void bttree::level(btnode* current) {
 	push(current);
-	while (que_empty()) {
+	while (que_empty()) {				//把队末元素的子节点入队，再把该节点出队
 		cout << current->element << endl;
 		if (current->left != NULL) {
 			push(current->left);
@@ -72,7 +72,7 @@ void bttree::level(btnode* current) {
 			push(current->right);
 		}
 		pop();
-		current = gettail();
+		current = gettail();			//把指针指向队末元素
 	}
 }
 void bttree::pop() {
@@ -140,7 +140,7 @@ btnode* bttree::create() {
 		cin >> input;
 	}
 	else {
-		input = '0';
+		input = '0';			//若为0表示该节点已经是叶节点
 	}
 	if (input == '0') {
 		current = NULL;
@@ -149,7 +149,7 @@ btnode* bttree::create() {
 			start = 1;
 		}
 	}
-	else if (input == '#') {
+	else if (input == '#') {	//输入井号表示已输入完全，剩余的0自动填充
 		mark = 1;
 		current = NULL;
 		if (0 == start) {
