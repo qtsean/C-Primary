@@ -8,35 +8,37 @@ struct btnode {
 };
 class maxheap {
 private:
-	int que_size;
-	int size;
+	int que_size;		//目前队列中的元素数	
+	int size;			//总节点数量
 	btnode* root;
-	btnode** que;
+	btnode** que;		//队列中存指针
 public:
-	maxheap(const int *a,int _size);
-	void que_push(btnode*a);
-	btnode* que_gettail();
-	bool que_empty();
-	void que_pop();
-	void que_delete();
-	void level(btnode*current);
-	btnode* getnode();
-	void initialize();
-	void insert(int ins);
-	void erase();
-	void sort();
+	maxheap(const int *a,int _size);	
+	void que_push(btnode*a);		//往队列中插入元素
+	btnode* que_gettail();			//得到队首元素
+	bool que_empty();				//判断队列是否空
+	void que_pop();					//弹出
+	void que_delete();				//重置队列
+	void level(btnode*current);		//层次遍历，看输出结果用
+	btnode* getnode();				//得到根节点
+	void initialize();				//初始化最大堆
+	void insert(int ins);			//往最大堆中插入元素
+	void erase();					//弹出最大堆的根节点
+	void sort();					//对最大堆排序
 };
 void maxheap::sort() {
-	while (root->left!= NULL) {
+	while (root->left!= NULL) {		//若左节点不为空，则弹出根节点，并重新排序
 		cout << root->element << endl;
 		erase();
 	}
 	cout << root->element << endl;
 }
 void maxheap::erase() {
-	que_delete();
+	que_delete();					//先重置队列
+
+	//对堆进行层次遍历，找出最后一个节点的元素
 	btnode* current = root;
-	que_push(current);
+	que_push(current);				
 	while (que_empty()) {
 		if (current->left != NULL) {
 			que_push(current->left);
@@ -49,11 +51,13 @@ void maxheap::erase() {
 		if (que_size == 0 && current->left == NULL&&current->right == NULL)
 			break;
 	}
-	root->element = current->element;
-	current->element = -1;
+	root->element = current->element;	//把最后元素的值赋给根节点
+	current->element = -1;				//把最后一个节点的值变为-1，作为标记
 	que_delete();
 	current = root;
 	que_push(current);
+
+	//再遍历一遍，找到子节点的值为-1的父节点，把该子树设置为NULL
 	while (que_empty()) {
 		if (current->left != NULL) {
 			if (current->left->element == -1) {
@@ -74,6 +78,7 @@ void maxheap::erase() {
 		que_pop();
 		current = que_gettail();
 	}
+	//重新初始化最大堆
 	initialize();
 }
 void maxheap::insert(int ins) {
@@ -82,7 +87,9 @@ void maxheap::insert(int ins) {
 	que = new btnode*[size];
 	btnode* current = root;
 	que_push(current);
-	while (1) {
+
+	//找到最后一个节点，在该节点后创建一个新节点，存放插入的值
+	while (1) {							
 		if (current->left != NULL) {
 			que_push(current->left);
 		}
@@ -108,6 +115,7 @@ void maxheap::insert(int ins) {
 		que_pop();
 		current = que_gettail();
 	}
+	//重新初始化最大堆
 	initialize();
 }
 void maxheap::initialize() {
@@ -117,8 +125,8 @@ void maxheap::initialize() {
 		btnode *current = root;
 		que_push(current);
 		while (que_empty()) {
-			if (current->left!=NULL&&current->element < current->left->element || current->right!=NULL&&current->element < current->right->element) {
-				
+			if (current->left!=NULL&&current->element < current->left->element || current->right!=NULL&&current->element < current->right->element) {	//如果子节点不为空且值大于父节点，则交换
+				//通过层次遍历实现
 				if (current->right != NULL) {
 					if (current->left != NULL&&current->left->element > current->right->element) {
 						int temp = current->left->element;
@@ -225,6 +233,8 @@ maxheap::maxheap(const int *a,int _size) {
 	btnode *current = root;
 	int i = 0;
 	que_push(current);
+
+	//第一次遍历，创建需要的节点个数
 	while (1) {
 		if (i < size-1) {
 			current->left = new btnode;
@@ -251,6 +261,8 @@ maxheap::maxheap(const int *a,int _size) {
 	i = 0;
 	current = root;
 	que_push(current);
+
+	//第二次遍历，赋值
 	while (que_empty()) {
 		current->element = a[i];
 		i++;
