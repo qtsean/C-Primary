@@ -158,7 +158,8 @@ weight* statistic(char* input) {
 	return wg;
 }
 int main() {
-	char input[1000]="abcbagggjalkdjgfioersgddsssss";
+	char input[1000]="Early in the day it was whispered that we should sail in a boat,\
+						only thou and I, and never a soul in the world would know of this our pilgrimage to no country and to no end.";
 	//cin >> input;
 	weight* wg;
 	wg = statistic(input);
