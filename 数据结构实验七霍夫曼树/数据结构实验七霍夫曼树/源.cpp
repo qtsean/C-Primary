@@ -160,9 +160,10 @@ weight* statistic(char* input) {
 	return wg;
 }
 int main() {
-	char input[1000]="Early in the day it was whispered that we should sail in a boat,\
+	//char input[1000]="Early in the day it was whispered that we should sail in a boat,\
 						only thou and I, and never a soul in the world would know of this our pilgrimage to no country and to no end.";	//输入的字符
 	//cin >> input;
+	char input[1000] = "hello world";
 	weight* wg;			//weight数组
 	wg = statistic(input);		//统计所有出现过的字符和每个字符的频率
 	huffman test(wg, countwg(wg),input);
