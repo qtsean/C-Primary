@@ -3,8 +3,8 @@
 #include<queue>
 #include<stack>
 #include<ctime>
-#define changetime 20
-#define trytime 2000
+#define changetime 30
+#define trytime 1000
 using namespace std;
 struct node
 {
@@ -18,9 +18,11 @@ struct node
 	int col;
 	int cost;
 	int direction;
+	int depth;
 };
 stack<int> S;
 queue<node*> Q;
+stack<node*> S1;
 class greedy 
 {
 	private:
@@ -35,6 +37,7 @@ class greedy
 		double avg_succeed;
 		int totalnum;
 		int totalstep;
+		int steps;
 	public:
 		greedy();
 		int cost(node*);
@@ -46,14 +49,173 @@ class greedy
 		void print(int**);
 		node** findway(node*);
 		void create(int** initial, int** final);
-		void showstatistics();
+		void showstatistics(int flag);
 		void showstatistics2();
 		void resetstack();
 		int getfail();
 		void free(node* current);
 		node* getstart();
 		void setNULL(node* current);
+		void solve3();
+		void showway2();
+		void showparent(node*);
+		void resetqueue();
+		void resetstack2();
 };
+void greedy::resetstack2()
+{
+	while (S1.size() != 0)
+	{
+		S1.pop();
+	}
+}
+void greedy::resetqueue()
+{
+	while (Q.size() != 0) 
+	{
+		Q.pop();
+	}
+}
+void greedy::showparent(node* current)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			cout << current->matrix[i][j]<<" ";
+		}
+		cout << endl;
+	}
+}
+void greedy::showway2()
+{
+	int i = 0;
+	while (current->col != 100)
+	{
+		S1.push(current);
+		current = current->parent;
+	}
+	while (S1.size() > 0)
+	{
+		//cout << "第"<<i << "次 :" << endl;
+		current = S1.top();
+		S1.pop();
+		//showparent(current);
+		i++;
+	}
+}
+void greedy::solve3()
+{
+	totalnum++;
+	Q.push(current);
+	while (Q.size()>0)
+	{
+		if (cost(current) == 0)
+		{
+			totalstep += current->depth;
+			succeednum++;
+			steps = current->depth;
+			resetqueue();
+			showway2();
+			break;
+		}
+		if (islegal(current->row - 1, current->col) && current->depth + cost(current) < changetime && ((current->row - 1 != current->parent->row) || (current->col != current->parent->col)))
+		{
+			current->nextup = new node;
+			setNULL(current->nextup);
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					current->nextup->matrix[i][j] = current->matrix[i][j];
+				}
+			}
+			int temp = current->matrix[current->row - 1][current->col];
+			current->nextup->matrix[current->row - 1][current->col] = 0;
+			current->nextup->matrix[current->row][current->col] = temp;
+			current->nextup->cost = cost(current->nextup);
+			current->nextup->parent = current;
+			current->nextup->direction = 1;
+			current->nextup->row = current->row - 1;
+			current->nextup->col = current->col;
+			current->nextup->depth = current->depth + 1;
+			Q.push(current->nextup);
+			S.push(current->nextup->direction);
+		}
+		if (islegal(current->row + 1, current->col) && current->depth + cost(current) < changetime && ((current->row + 1 != current->parent->row) || (current->col != current->parent->col)))
+		{
+			current->nextdown = new node;
+			setNULL(current->nextdown);
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					current->nextdown->matrix[i][j] = current->matrix[i][j];
+				}
+			}
+			int temp = current->matrix[current->row + 1][current->col];
+			current->nextdown->matrix[current->row + 1][current->col] = 0;
+			current->nextdown->matrix[current->row][current->col] = temp;
+			current->nextdown->cost = cost(current->nextdown);
+			current->nextdown->parent = current;
+			current->nextdown->direction = 2;
+			current->nextdown->row = current->row + 1;
+			current->nextdown->col = current->col;
+			current->nextdown->depth = current->depth + 1;
+			Q.push(current->nextdown);
+			S.push(current->nextdown->direction);
+		}
+		if (islegal(current->row, current->col-1) && current->depth + cost(current) <changetime  && ((current->row != current->parent->row) || (current->col - 1 != current->parent->col)))
+		{
+			current->nextleft = new node;
+			setNULL(current->nextleft);
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					current->nextleft->matrix[i][j] = current->matrix[i][j];
+				}
+			}
+			int temp = current->matrix[current->row ][current->col-1];
+			current->nextleft->matrix[current->row ][current->col-1] = 0;
+			current->nextleft->matrix[current->row][current->col] = temp;
+			current->nextleft->cost = cost(current->nextleft);
+			current->nextleft->parent = current;
+			current->nextleft->direction = 3;
+			current->nextleft->row = current->row;
+			current->nextleft->col = current->col-1;
+			current->nextleft->depth = current->depth + 1;
+			Q.push(current->nextleft);
+			S.push(current->nextleft->direction);
+		}
+		if (islegal(current->row, current->col + 1) && current->depth + cost(current) <changetime && ((current->row != current->parent->row) || (current->col + 1 != current->parent->col)))
+		{
+			current->nextright = new node;
+			setNULL(current->nextright);
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					current->nextright->matrix[i][j] = current->matrix[i][j];
+				}
+			}
+			int temp = current->matrix[current->row][current->col + 1];
+			current->nextright->matrix[current->row][current->col + 1] = 0;
+			current->nextright->matrix[current->row][current->col] = temp;
+			current->nextright->cost = cost(current->nextright);
+			current->nextright->parent = current;
+			current->nextright->direction = 4;
+			current->nextright->row = current->row;
+			current->nextright->col = current->col + 1;
+			current->nextright->depth = current->depth + 1;
+			Q.push(current->nextright);
+			S.push(current->nextright->direction);
+		}
+		Q.pop();
+		current = Q.front();
+	}
+	resetstack();
+}
 void greedy::setNULL(node* current)
 {
 	current->nextup = NULL;
@@ -99,9 +261,14 @@ void greedy::resetstack()
 		S.pop();
 	}
 }
-void greedy::showstatistics()
+void greedy::showstatistics(int flag)
 {
-	cout << "贪婪法：" << endl;
+	if(flag==1)
+		cout << "贪婪法：" << endl;
+	if(flag==2)
+		cout << "必有解的贪婪法：" << endl;
+	if (flag == 3)
+		cout << "分支限界法： " << endl;
 	if(succeednum!=0)
 	avg_succeed = 1.0*totalstep / succeednum;
 	cout << "success number:" << "\t\t" << succeednum << endl;
@@ -145,6 +312,7 @@ void greedy::create(int** initial, int** final)
 	start->nextright = NULL;
 	current = start;
 	start->cost = cost(start);
+	start->depth = 0;
 }
 node** greedy::findway(node* _current)
 {
@@ -568,6 +736,7 @@ int main()
 		b[i] = new int[3];
 	greedy test;
 	greedy test2;
+	greedy test3;
 	for (int i = 0; i < trytime; i++) 
 	{
 		generate(a);
@@ -591,7 +760,7 @@ int main()
 				end[i][j] = b[i][j];
 			}
 		}
-	/*	cout << "start: " << endl;
+		/*cout << "start: " << endl;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				cout << start[i][j] << " ";
@@ -614,14 +783,19 @@ int main()
 				}
 			}
 		}
-		if (same != 1) {
+		if (same != 1) 
+		{
+			test3.create(start, end);
+			test3.solve3();
+			test3.free(test3.getstart());
 			test.create(start, end);
 			test.solve();
 			test.free(test.getstart());
 			test2.create(start, end);
 			test2.solve2();
 			test2.free(test2.getstart());
-			if (test2.getfail() != 1) {
+			/*if (test2.getfail() != 1) 
+			{
 				cout << "start: " << endl;
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 3; j++) {
@@ -636,11 +810,12 @@ int main()
 					}
 					cout << endl;
 				}
-			}
+			}*/
 		}
 	}
-	test.showstatistics();
-	test2.showstatistics2();
+	test.showstatistics(1);
+	test2.showstatistics(2);
+	test3.showstatistics(3);
 	system("pause");
 	return 0;
 
