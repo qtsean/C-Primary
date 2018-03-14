@@ -4,7 +4,7 @@
 #include<stack>
 #include<ctime>
 #define changetime 20
-#define trytime 500
+#define trytime 2000
 using namespace std;
 struct node
 {
@@ -50,7 +50,34 @@ class greedy
 		void showstatistics2();
 		void resetstack();
 		int getfail();
+		void free(node* current);
+		node* getstart();
+		void setNULL(node* current);
 };
+void greedy::setNULL(node* current)
+{
+	current->nextup = NULL;
+	current->nextdown = NULL;
+	current->nextleft = NULL;
+	current->nextright = NULL;
+}
+node* greedy::getstart()
+{
+	return start;
+}
+void greedy::free(node* current)
+{
+	
+	if (current == NULL)
+		return;
+	free(current->nextup);
+	free(current->nextdown);
+	free(current->nextleft);
+	free(current->nextright);
+	delete current;
+	current = NULL;
+	return;
+}
 int greedy::getfail()
 {
 	return succeed;
@@ -85,6 +112,7 @@ void greedy::showstatistics()
 }
 void greedy::create(int** initial, int** final)
 {
+	start = new node;
 	succeed = 0;
 	fail = 0;
 	//start = new node;
@@ -111,14 +139,21 @@ void greedy::create(int** initial, int** final)
 	start->parent = new node;
 	start->parent->row = 100;
 	start->parent->col = 100;
+	start->nextup = NULL;
+	start->nextdown = NULL;
+	start->nextleft = NULL;
+	start->nextright = NULL;
 	current = start;
 	start->cost = cost(start);
 }
 node** greedy::findway(node* _current)
 {
+	//_current->nextup = NULL;
+	
 	if (islegal(_current->row - 1, _current->col) && ((_current->row - 1 != _current->parent->row) || (_current->col != _current->parent->col)))
-	{
+	{	
 		_current->nextup = new node;
+		setNULL(_current->nextup);
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 3; j++)
@@ -135,12 +170,16 @@ node** greedy::findway(node* _current)
 		_current->nextup->row = _current->row - 1;
 		_current->nextup->col = _current->col;
 	}
-	else {
-		_current->nextup = NULL;
-	}
+	//else {
+	//	_current->nextup = NULL;
+	//}
+	//_current->nextdown = NULL;
+	
 	if (islegal(_current->row + 1, _current->col) && ((_current->row + 1 != _current->parent->row) || (_current->col != _current->parent->col)))
 	{
 		_current->nextdown = new node;
+		setNULL(_current->nextdown);
+		
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				_current->nextdown->matrix[i][j] = _current->matrix[i][j];
@@ -155,13 +194,17 @@ node** greedy::findway(node* _current)
 		_current->nextdown->row = _current->row + 1;
 		_current->nextdown->col = _current->col;
 	}
-	else
+	/*else
 	{
 		_current->nextdown = NULL;
-	}
+	}*/
+	//_current->nextleft = NULL;
+	
 	if (islegal(_current->row, _current->col - 1) && ((_current->row != _current->parent->row) || (_current->col - 1 != _current->parent->col)))
 	{
 		_current->nextleft = new node;
+		setNULL(_current->nextleft);
+		
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				_current->nextleft->matrix[i][j] = _current->matrix[i][j];
@@ -176,13 +219,17 @@ node** greedy::findway(node* _current)
 		_current->nextleft->row = _current->row;
 		_current->nextleft->col = _current->col - 1;
 	}
-	else
+	/*else
 	{
 		_current->nextleft = NULL;
-	}
+	}*/
+	//_current->nextright = NULL;
+	
 	if (islegal(_current->row, _current->col + 1) && ((_current->row != _current->parent->row) || (_current->col + 1 != _current->parent->col)))
 	{
 		_current->nextright = new node;
+		setNULL(_current->nextright);
+		
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				_current->nextright->matrix[i][j] = _current->matrix[i][j];
@@ -197,10 +244,10 @@ node** greedy::findway(node* _current)
 		_current->nextright->row = _current->row;
 		_current->nextright->col = _current->col + 1;
 	}
-	else
+	/*else
 	{
 		_current->nextright = NULL;
-	}
+	}*/
 	node** tep = new node*[4];
 	tep[0] = _current->nextup;
 	tep[1] = _current->nextdown;
@@ -290,6 +337,8 @@ void greedy::showway()
 			}
 		}
 	}*/
+	delete mtr;
+	delete length;
 }
 void greedy::sort(node** tep)
 {
@@ -323,7 +372,7 @@ bool greedy::islegal(int row, int col)
 }
 void greedy::solve2()
 {
-	if (S.size()>20)
+	if (S.size()>changetime)
 	{
 		//	cout << "fail: " << S.size() << endl;
 		/*fail = 1;
@@ -342,8 +391,8 @@ void greedy::solve2()
 		showway();
 		return;
 	}
-	node** tep = new node*[4];
-	tep = findway(current);
+	node** tep = findway(current);
+	
 	sort(tep);
 
 	for (int i = 0; i < 4; i++)
@@ -362,7 +411,7 @@ void greedy::solve2()
 				S.pop();
 		}
 	}
-
+	delete tep;
 }
 void greedy::solve()
 {
@@ -385,8 +434,8 @@ void greedy::solve()
 		showway();
 		return;
 	}
-	node** tep = new node*[4];
-	tep = findway(current);
+	node** tep = findway(current);
+	
 		sort(tep);
 		
 		for (int i = 0; i < 4; i++)
@@ -405,7 +454,7 @@ void greedy::solve()
 					S.pop();
 			}
 		}
-	
+		delete tep;
 }
 int greedy::cost(node* _current)
 {
@@ -424,7 +473,7 @@ int greedy::cost(node* _current)
 }
 greedy::greedy() 
 {	
-	start = new node;
+	
 	succeed = 0;
 	failnum = 0;
 	succeednum = 0;
@@ -542,7 +591,7 @@ int main()
 				end[i][j] = b[i][j];
 			}
 		}
-		/*cout << "start: " << endl;
+	/*	cout << "start: " << endl;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				cout << start[i][j] << " ";
@@ -568,8 +617,10 @@ int main()
 		if (same != 1) {
 			test.create(start, end);
 			test.solve();
+			test.free(test.getstart());
 			test2.create(start, end);
 			test2.solve2();
+			test2.free(test2.getstart());
 			if (test2.getfail() != 1) {
 				cout << "start: " << endl;
 				for (int i = 0; i < 3; i++) {
