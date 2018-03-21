@@ -1,10 +1,10 @@
 #include<iostream>
-#include<stdlib.h>
+#include<cstdlib>
 #include<queue>
 #include<stack>
 #include<ctime>
 #define changetime 30
-#define trytime 1000
+#define trytime 200
 using namespace std;
 struct node
 {
@@ -19,10 +19,91 @@ struct node
 	int cost;
 	int direction;
 	int depth;
+	int distance;//每个不在正确位置的点到正确位置的距离
+	int enimate;//cost+distance
 };
 stack<int> S;
 queue<node*> Q;
 stack<node*> S1;
+class arr
+{
+public:
+	node ** element;
+	int size;
+	arr();
+	void insert(node*);
+	void del(node*);
+	void sortarr();
+	node* find(node*);
+};
+node* arr::find(node*current)
+{
+	for (int i = 0; i < size; i++)
+	{
+		bool equal = 1;
+		for (int j = 0; j < 3; j++)
+		{
+			for (int m = 0; m < 3; m++)
+			{
+				if (element[i]->matrix[j][m] != current->matrix[j][m])
+				{
+					equal = 0;
+				}
+			}
+		}
+		if (equal == 1)
+		{
+			return element[i];
+		}
+	}
+	return NULL;
+}
+void arr::sortarr()
+{
+	bool change = 1;
+	while (change == 1)
+	{
+		change = 0;
+		for (int i = 0; i < size - 1; i++)
+		{
+			if (element[i]->enimate > element[i + 1]->enimate)
+			{
+				node*temp = element[i + 1];
+				element[i + 1] = element[i];
+				element[i] = temp;
+				change = 1;
+				break;
+			}
+		}
+	}
+}
+void arr::del(node*current)
+{
+	for (int i = 0; i < size; i++)
+	{
+		if (current == element[i])
+		{
+			for (int j = i; j < size - 1; j++)
+			{
+				element[j] = element[j + 1];
+			}
+			size--;
+		}
+		break;
+	}
+}
+arr::arr()
+{
+	element = new node*[10000];
+	size = 0;
+}
+void arr::insert(node* current)
+{
+	element[size] = current;
+	size++;
+}
+arr live;
+arr dead;
 class greedy 
 {
 	private:
@@ -61,7 +142,262 @@ class greedy
 		void showparent(node*);
 		void resetqueue();
 		void resetstack2();
+		int hfunc(node*);
+		void solve4();
+		void findwayA(node*);
 };
+void greedy::solve4()
+{
+	totalnum++;
+	live.insert(start);
+	while (live.size > 0)
+	{
+		live.sortarr();
+		if (hfunc(live.element[0]) == 0)
+		{
+			totalstep += live.element[0]->depth;
+			succeednum++;
+			showway2();
+			live.size = 0;
+			dead.size = 0;
+			return;
+		}
+		current = live.element[0];
+		findwayA(live.element[0]);
+		live.del(current);
+		dead.insert(current);
+		//cout << "live: "<<live.size << endl;
+		//cout << "dead: "<<dead.size << endl;
+	}
+	failnum++;
+}
+void greedy::findwayA(node*_current)
+{
+	if (islegal(_current->row - 1, _current->col) && ((_current->row - 1 != _current->parent->row) || (_current->col != _current->parent->col)))
+	{
+		_current->nextup = new node;
+		setNULL(_current->nextup);
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				_current->nextup->matrix[i][j] = _current->matrix[i][j];
+			}
+		}
+		int temp = _current->matrix[_current->row - 1][_current->col];
+		_current->nextup->matrix[_current->row - 1][_current->col] = 0;
+		_current->nextup->matrix[_current->row][_current->col] = temp;
+		_current->nextup->cost = cost(_current->nextup);
+		_current->nextup->parent = _current;
+		_current->nextup->row = _current->row - 1;
+		_current->nextup->col = _current->col;
+		_current->nextup->depth = _current->depth + 1;
+		_current->nextup->enimate = current->nextup->depth + hfunc(current->nextup);
+		if (live.find(_current->nextup) == NULL && dead.find(_current->nextup) == NULL)
+		{
+			live.insert(_current->nextup);
+		}
+		else if (live.find(_current->nextup) !=NULL)
+		{
+			node* t = live.find(_current->nextup);
+			if (t->enimate > _current->nextup->enimate)
+			{
+				t->enimate = current->nextup->enimate;
+				t->parent = current->nextup->parent;
+				//delete current->nextup;
+			}
+		}
+		else if (dead.find(current->nextup) != NULL)
+		{
+			node* t = dead.find(_current->nextup);
+			if(t->enimate > _current->nextup->enimate)
+			{
+				t->enimate = current->nextup->enimate;
+				t->parent = current->nextup->parent;
+				//delete current->nextup;
+				live.insert(t);
+				dead.del(t);
+			}
+		}
+	}
+	if (islegal(_current->row + 1, _current->col) && ((_current->row + 1 != _current->parent->row) || (_current->col != _current->parent->col)))
+	{
+		_current->nextdown = new node;
+		setNULL(_current->nextdown);
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				_current->nextdown->matrix[i][j] = _current->matrix[i][j];
+			}
+		}
+		int temp = _current->matrix[_current->row + 1][_current->col];
+		_current->nextdown->matrix[_current->row + 1][_current->col] = 0;
+		_current->nextdown->matrix[_current->row][_current->col] = temp;
+		_current->nextdown->cost = cost(_current->nextdown);
+		_current->nextdown->parent = _current;
+		_current->nextdown->row = _current->row + 1;
+		_current->nextdown->col = _current->col;
+		_current->nextdown->depth = _current->depth + 1;
+		_current->nextdown->enimate = current->nextdown->depth + hfunc(current->nextdown);
+		if (live.find(_current->nextdown) == NULL && dead.find(_current->nextdown) == NULL)
+		{
+			live.insert(_current->nextdown);
+		}
+		else if (live.find(_current->nextdown) != NULL)
+		{
+			node* t = live.find(_current->nextdown);
+			if (t->enimate > _current->nextdown->enimate)
+			{
+				t->enimate = current->nextdown->enimate;
+				t->parent = current->nextdown->parent;
+				//delete current->nextdown;
+			}
+		}
+		else if (dead.find(current->nextdown) != NULL)
+		{
+			node* t = dead.find(_current->nextdown);
+			if (t->enimate > _current->nextdown->enimate)
+			{
+				t->enimate = current->nextdown->enimate;
+				t->parent = current->nextdown->parent;
+				//delete current->nextdown;
+				live.insert(t);
+				dead.del(t);
+			}
+		}
+	}
+	if (islegal(_current->row , _current->col-1) && ((_current->row  != _current->parent->row) || (_current->col-1 != _current->parent->col)))
+	{
+		_current->nextleft = new node;
+		setNULL(_current->nextleft);
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				_current->nextleft->matrix[i][j] = _current->matrix[i][j];
+			}
+		}
+		int temp = _current->matrix[_current->row ][_current->col-1];
+		_current->nextleft->matrix[_current->row ][_current->col-1] = 0;
+		_current->nextleft->matrix[_current->row][_current->col] = temp;
+		_current->nextleft->cost = cost(_current->nextleft);
+		_current->nextleft->parent = _current;
+		_current->nextleft->row = _current->row;
+		_current->nextleft->col = _current->col-1;
+		_current->nextleft->depth = _current->depth + 1;
+		_current->nextleft->enimate = current->nextleft->depth + hfunc(current->nextleft);
+		if (live.find(_current->nextleft) == NULL && dead.find(_current->nextleft) == NULL)
+		{
+			live.insert(_current->nextleft);
+		}
+		else if (live.find(_current->nextleft) != NULL)
+		{
+			node* t = live.find(_current->nextleft);
+			if (t->enimate > _current->nextleft->enimate)
+			{
+				t->enimate = current->nextleft->enimate;
+				t->parent = current->nextleft->parent;
+				//delete current->nextleft;
+			}
+		}
+		else if (dead.find(current->nextleft) != NULL)
+		{
+			node* t = dead.find(_current->nextleft);
+			if (t->enimate > _current->nextleft->enimate)
+			{
+				t->enimate = current->nextleft->enimate;
+				t->parent = current->nextleft->parent;
+				//delete current->nextleft;
+				live.insert(t);
+				dead.del(t);
+			}
+		}
+	}
+	if (islegal(_current->row, _current->col + 1) && ((_current->row != _current->parent->row) || (_current->col + 1 != _current->parent->col)))
+	{
+		_current->nextright = new node;
+		setNULL(_current->nextright);
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				_current->nextright->matrix[i][j] = _current->matrix[i][j];
+			}
+		}
+		int temp = _current->matrix[_current->row][_current->col + 1];
+		_current->nextright->matrix[_current->row][_current->col + 1] = 0;
+		_current->nextright->matrix[_current->row][_current->col] = temp;
+		_current->nextright->cost = cost(_current->nextright);
+		_current->nextright->parent = _current;
+		_current->nextright->row = _current->row;
+		_current->nextright->col = _current->col + 1;
+		_current->nextright->depth = _current->depth + 1;
+		_current->nextright->enimate = current->nextright->depth + hfunc(current->nextright);
+		if (live.find(_current->nextright) == NULL && dead.find(_current->nextright) == NULL)
+		{
+			live.insert(_current->nextright);
+		}
+		else if (live.find(_current->nextright) != NULL)
+		{
+			node* t = live.find(_current->nextright);
+			if (t->enimate > _current->nextright->enimate)
+			{
+				t->enimate = current->nextright->enimate;
+				t->parent = current->nextright->parent;
+				//delete current->nextright;
+			}
+		}
+		else if (dead.find(current->nextright) != NULL)
+		{
+			node* t = dead.find(_current->nextright);
+			if (t->enimate > _current->nextright->enimate)
+			{
+				t->enimate = current->nextright->enimate;
+				t->parent = current->nextright->parent;
+				//delete current->nextright;
+				live.insert(t);
+				dead.del(t);
+			}
+		}
+	}
+}
+
+int greedy::hfunc(node* current)
+{
+	int count = 0;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	for (int i = 1; i < 9; i++)
+	{
+		for (int j = 0; j < 3; j++) 
+		{
+			for (int m = 0; m < 3; m++)
+			{
+				if (current->matrix[j][m] == i)
+				{
+					x1 = j;
+					y1 = m;
+				}
+			}
+		}
+		for (int j = 0; j < 3; j++)
+		{
+			for (int m = 0; m < 3; m++)
+			{
+				if (end[j][m] == i)
+				{
+					x2 = j;
+					y2 = m;
+				}
+			}
+		}
+		count += abs(x1 - x2) + abs(y1 - y2);
+	}
+	return count;
+}
 void greedy::resetstack2()
 {
 	while (S1.size() != 0)
@@ -269,6 +605,8 @@ void greedy::showstatistics(int flag)
 		cout << "必有解的贪婪法：" << endl;
 	if (flag == 3)
 		cout << "分支限界法： " << endl;
+	if (flag == 4)
+		cout << "启发法： " << endl;
 	if(succeednum!=0)
 	avg_succeed = 1.0*totalstep / succeednum;
 	cout << "success number:" << "\t\t" << succeednum << endl;
@@ -313,6 +651,7 @@ void greedy::create(int** initial, int** final)
 	current = start;
 	start->cost = cost(start);
 	start->depth = 0;
+	start->enimate = hfunc(start);
 }
 node** greedy::findway(node* _current)
 {
@@ -737,6 +1076,7 @@ int main()
 	greedy test;
 	greedy test2;
 	greedy test3;
+	greedy test4;
 	for (int i = 0; i < trytime; i++) 
 	{
 		generate(a);
@@ -760,7 +1100,7 @@ int main()
 				end[i][j] = b[i][j];
 			}
 		}
-		/*cout << "start: " << endl;
+	/*	cout << "start: " << endl;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				cout << start[i][j] << " ";
@@ -785,6 +1125,9 @@ int main()
 		}
 		if (same != 1) 
 		{
+			test4.create(start, end);
+			test4.solve4();
+			test4.free(test4.getstart());
 			test3.create(start, end);
 			test3.solve3();
 			test3.free(test3.getstart());
@@ -816,6 +1159,7 @@ int main()
 	test.showstatistics(1);
 	test2.showstatistics(2);
 	test3.showstatistics(3);
+	test4.showstatistics(4);
 	system("pause");
 	return 0;
 
