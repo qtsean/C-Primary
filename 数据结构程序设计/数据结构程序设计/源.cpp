@@ -3,8 +3,8 @@
 #include<queue>
 #include<stack>
 #include<ctime>
-#define changetime 30
-#define trytime 200
+#define changetime 40
+#define trytime 30000
 using namespace std;
 struct node
 {
@@ -425,6 +425,9 @@ void greedy::showparent(node* current)
 }
 void greedy::showway2()
 {
+	//static int j = 0;
+	//j++;
+	//cout << j << endl;
 	int i = 0;
 	while (current->col != 100)
 	{
@@ -436,7 +439,7 @@ void greedy::showway2()
 		//cout << "µÚ"<<i << "´Î :" << endl;
 		current = S1.top();
 		S1.pop();
-		//showparent(current);
+	//	showparent(current);
 		i++;
 	}
 }
@@ -1125,6 +1128,9 @@ int main()
 		}
 		if (same != 1) 
 		{
+			static int j = 0;
+			j++;
+			cout << j << endl;
 			test4.create(start, end);
 			test4.solve4();
 			test4.free(test4.getstart());
@@ -1134,9 +1140,9 @@ int main()
 			test.create(start, end);
 			test.solve();
 			test.free(test.getstart());
-			test2.create(start, end);
+			/*test2.create(start, end);
 			test2.solve2();
-			test2.free(test2.getstart());
+			test2.free(test2.getstart());*/
 			/*if (test2.getfail() != 1) 
 			{
 				cout << "start: " << endl;
