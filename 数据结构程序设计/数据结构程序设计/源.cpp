@@ -4,7 +4,7 @@
 #include<stack>
 #include<ctime>
 #define changetime 40
-#define trytime 30000
+#define trytime 3000
 using namespace std;
 struct node
 {
