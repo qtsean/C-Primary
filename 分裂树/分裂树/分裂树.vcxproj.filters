@@ -16,10 +16,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stree.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="slaytree.h">
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="slaytree.cpp">
       <Filter>源文件</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
 </Project>
