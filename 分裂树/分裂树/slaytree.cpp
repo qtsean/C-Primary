@@ -51,7 +51,158 @@ public:
 	int getheight(node<T>* current);
 	node<T>* getroot();
 	void nprint();
+	void rotate(node<T>* current);
 };
+template<class T>
+void slaytree<T>::rotate(node<T>* current)
+{
+	while (current->parent != NULL)
+	{
+
+		if (current->parent->parent == NULL && current == current->parent->left)
+		{
+			node<T>* q = current;
+			node<T>* p = current->parent;
+			node<T>* a = current->left;
+			node<T>* b = current->right;
+			node<T>* c = current->parent->right;
+			q->right = p;
+			p->parent = q;
+			p->left = b;
+			if(b)
+			b->parent = p;
+			q->parent = NULL;
+			return;
+		}
+		if (current->parent->parent == NULL && current == current->parent->right)
+		{
+			node<T>* q = current;
+			node<T>* p = current->parent;
+			node<T>* a = current->left;
+			node<T>* b = current->right;
+			node<T>* c = current->parent->left;
+			q->parent = NULL;
+			p->right = a;
+			if(a)
+			a->parent = p;
+			q->left = p;
+			p->parent = q;
+			return;
+		}
+		node<T>* q = current;
+		node<T>* p = current->parent;
+		node<T>* gp = current->parent->parent;
+		node<T>* gpp = gp->parent;
+		if (q == p->left&&p == gp->left)
+		{
+			node<T>* a = q->left;
+			node<T>* b = q->right;
+			node<T>* c = p->right;
+			node<T>* d = gp->right;
+			q->right = p;
+			p->parent = q;
+			p->left = b;
+			if(b)
+			b->parent = p;
+			p->right = gp;
+			gp->parent = p;
+			gp->left = c;
+			if(c)
+			c->parent = gp;
+			q->parent = gpp;
+			if (gpp != NULL && gp == gpp->right)
+			{
+				gpp->right = q;
+			}
+			if (gpp != NULL && gp == gpp->left)
+			{
+				gpp->left = q;
+			}
+			continue;
+		}
+		else if (q == p->right&&p == gp->left)
+		{
+			node<T>* a = p->left;
+			node<T>* b = q->left;
+			node<T>* c = q->right;
+			node<T>* d = gp->right;
+			q->left = p;
+			p->parent = q;
+			q->right = gp;
+			gp->parent = q;
+			p->right = b;
+			if(b)
+			b->parent = p;
+			gp->left = c;
+			if(c)
+			c->parent = gp;
+			q->parent = gpp;
+			if (gpp != NULL && gp == gpp->right)
+			{
+				gpp->right = q;
+			}
+			if (gpp != NULL && gp == gpp->left)
+			{
+				gpp->left = q;
+			}
+			continue;
+		}
+		else if (q == p->right&&p == gp->right)
+		{
+			node<T>* a = q->right;
+			node<T>* b = q->left;
+			node<T>* c = p->left;
+			node<T>* d = gp->left;
+			q->left = p;
+			p->parent = q;
+			p->left = gp;
+			gp->parent = p;
+			p->right = b;
+			if(b)
+			b->parent = p;
+			gp->right = c;
+			if(c)
+			c->parent = gp;
+			q->parent = gpp;
+			if (gpp != NULL && gp == gpp->right)
+			{
+				gpp->right = q;
+			}
+			if (gpp != NULL && gp == gpp->left)
+			{
+				gpp->left = q;
+			}
+			continue;
+		}
+		else if (q == p->left&&p == gp->right)
+		{
+			node<T>* a = p->right;
+			node<T>* b = q->right;
+			node<T>* c = q->left;
+			node<T>* d = gp->left;
+			q->left = gp;
+			gp->parent = q;
+			q->right = p;
+			p->parent = q;
+			gp->right = c;
+			if(c)
+			c->parent = gp;
+			p->left = b;
+			if(b)
+			b->parent = p;
+			q->parent = gpp;
+			if (gpp != NULL && gp == gpp->right)
+			{
+				gpp->right = q;
+			}
+			if (gpp != NULL && gp == gpp->left)
+			{
+				gpp->left = q;
+			}
+			continue;
+		}
+	}
+}
 template<class T>
 void slaytree<T>::nprint()
 {
@@ -85,7 +236,7 @@ void slaytree<T>::nprint()
 		if (curInfo.enter)
 			cout << endl << endl;
 		for (i = 0; i<curInfo.spaceNum; i++)
-			cout<<" ";
+			cout<<"-";
 		cout << curNode->key;
 		QI.pop_front();
 		if (curNode->left)
@@ -299,7 +450,48 @@ void slaytree<T>::updatedistancetoroot(node<T>* x)
 template<class T>
 node<T>* slaytree<T>::find(T v)
 {
-
+	node<T>* thenode;
+	node<T>* current = root;
+	bool found = 0;
+	while (1)
+	{
+		if (v == current->key)
+		{
+			found = 1;
+			thenode = current;
+			break;
+		}
+		if (v < current->key)
+		{
+			if (current->left != NULL)
+			{
+				current = current->left;
+				continue;
+			}
+			else
+			{
+				cout << "NO SUCH VALUE" << endl;
+				break;
+			}
+		}
+		if (v > current->key)
+		{
+			if (current->right != NULL)
+			{
+				current = current->right;
+				continue;
+			}
+			else
+			{
+				cout << "NO SUCH VALUE" << endl;
+				break;
+			}
+		}
+	}
+	if (found == 1)
+	{
+		rotate(thenode);
+	}
 }
 
 template<class T>
@@ -324,16 +516,17 @@ slaytree<T>::slaytree()
 template<class T>
 void slaytree<T>::insert(T v)
 {
+	node<T>* current;
 	if (root == NULL)
 	{
 		root = newnode();
 		root->key = v;
 		size++;
-		//display();
+		current = root;
 	}
 	else
 	{
-		node<T>* current = root;
+		current = root;
 		while (true)
 		{
 			if (v < current->key)
@@ -348,7 +541,7 @@ void slaytree<T>::insert(T v)
 					current->left->key = v;
 					current->left->parent = current;
 					size++;
-				//	display();
+					current = current->left;
 					break;
 				}
 			}
@@ -364,17 +557,19 @@ void slaytree<T>::insert(T v)
 					current->right->key = v;
 					current->right->parent = current;
 					size++;
-				//	display();
+					current = current->right;
 					break;
 				}
 			}
 			if (v == current->key)
 			{
 				cout << "不能有相同值" << endl;
-				break;
+				return;
 			}
 		}
 	}
+	rotate(current);
+	root = current;
 }
 
 
