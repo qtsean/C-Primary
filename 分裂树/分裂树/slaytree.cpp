@@ -1,4 +1,4 @@
-#pragma once
+
 #include"iostream"
 #include"cstdlib"
 //#include"stree.h"
@@ -47,12 +47,165 @@ public:
 	void calculateposition();
 	node<T>* succ(node<T>* x);
 	void display();
-	void erase(node<T>*);
+	void erase(T v);
 	int getheight(node<T>* current);
 	node<T>* getroot();
 	void nprint();
 	void rotate(node<T>* current);
 };
+template<class T> 
+void slaytree<T>:: erase(T v)
+{
+	node<T>* q = find(v);
+	node<T>* p = q->parent;
+	if (q->left != NULL && q->right != NULL)
+	{
+		node<T>* leftson = q->left;
+		if (leftson->right == NULL)
+		{
+			leftson->right = q->right;
+			if(q->right)
+			q->right->parent = leftson;
+			leftson->parent = q->parent;
+			if (q->parent != NULL && q == q->parent->left)
+				q->parent->left = leftson;
+			if (q->parent != NULL && q == q->parent->right)
+				q->parent->right = leftson;
+			if (leftson->parent == NULL)
+				root = leftson;
+			delete q;
+			size--;
+		}
+		else
+		{
+			while (leftson->right != NULL)
+			{
+				leftson = leftson->right;
+			}
+			if(leftson->left)
+				leftson->left->parent = leftson->parent;
+			leftson->parent->right = leftson->left;
+			leftson->left = q->left;
+			q->left->parent = leftson;
+			leftson->right = q->right;
+			q->right->parent = leftson;
+			leftson->parent = q->parent;
+			if (q->parent != NULL && q == q->parent->left)
+				q->parent->left = leftson;
+			if (q->parent != NULL && q == q->parent->right)
+				q->parent->right = leftson;
+			if (leftson->parent == NULL)
+				root = leftson;
+			delete q;
+			size--;
+		}
+	}
+	else if (q->left == NULL && q->right != NULL)
+	{
+		node<T>* rightson = q->right;
+		rightson->parent = p;
+		if (q->parent != NULL && q == q->parent->left)
+			q->parent->left = rightson;
+		if (q->parent != NULL && q == q->parent->right)
+			q->parent->right = rightson;
+		if (rightson->parent == NULL)
+			root = rightson;
+		delete q;
+		size--;
+	}
+	else if (q->right == NULL && q->left != NULL)
+	{
+		node<T>* leftson = q->left;
+		leftson->parent = p;
+		if (q->parent != NULL && q == q->parent->left)
+			q->parent->left = leftson;
+		if (q->parent != NULL && q == q->parent->right)
+			q->parent->right = leftson;
+		if (leftson->parent == NULL)
+			root = leftson;
+		delete q;
+		size--;
+	}
+	else if (size == 1)
+	{
+		delete p;
+		root = NULL;
+		size--;
+	}
+	else if (q->left == NULL && q->right == NULL)
+	{
+		if (q == p->left)
+			p->left = NULL;
+		else
+			p->right = NULL;
+		delete q;
+		size--;
+	}
+
+	/*node<T>* father = p->parent;
+	node<T>* pp = p->parent;
+	if (p->left != NULL && p->right != NULL)
+	{
+		node<T>* s = p->left;
+		node<T>* ps = p;
+		while (s->right != NULL)
+		{
+			ps = s;
+			s = s->right;
+		}
+		node<T>* q = newnode();
+		q->key = s->key;
+		q->left = p->left;
+		q->right = p->right;
+		if (pp == NULL)
+			root = q;
+		else if (p == pp->left) {
+			pp->left = q;
+			if(q)
+			q->parent = pp;
+		}
+		else {
+			pp->right = q; 
+			if(q)
+			q->parent = pp;
+		}
+		if (ps == p)
+			pp = q;
+		else
+			pp = ps;
+		delete p;
+		p = s;
+	}
+	node<T>* c;
+	if (p->left != NULL)
+		c = p->left;
+	else
+		c = p->right;
+	if (p == root)
+	{
+		c->parent = NULL;
+		root = c;
+	}
+	else
+	{
+		if (p == pp->left)
+		{
+			pp->left = c;
+			if(c)
+			c->parent = pp;
+		}
+		else
+		{
+			pp->right = c;
+			if(c)
+			c->parent = pp;
+		}
+	}
+	size--;
+	delete p;*/
+	if(p!=NULL)
+		rotate(p);
+}
 template<class T>
 void slaytree<T>::rotate(node<T>* current)
 {
@@ -72,6 +225,7 @@ void slaytree<T>::rotate(node<T>* current)
 			if(b)
 			b->parent = p;
 			q->parent = NULL;
+			root = q;
 			return;
 		}
 		if (current->parent->parent == NULL && current == current->parent->right)
@@ -87,6 +241,7 @@ void slaytree<T>::rotate(node<T>* current)
 			a->parent = p;
 			q->left = p;
 			p->parent = q;
+			root = q;
 			return;
 		}
 		node<T>* q = current;
@@ -202,6 +357,7 @@ void slaytree<T>::rotate(node<T>* current)
 			continue;
 		}
 	}
+	root = current;
 }
 template<class T>
 void slaytree<T>::nprint()
@@ -459,6 +615,7 @@ node<T>* slaytree<T>::find(T v)
 		{
 			found = 1;
 			thenode = current;
+			return thenode;
 			break;
 		}
 		if (v < current->key)
@@ -488,10 +645,7 @@ node<T>* slaytree<T>::find(T v)
 			}
 		}
 	}
-	if (found == 1)
-	{
-		rotate(thenode);
-	}
+	return NULL;
 }
 
 template<class T>
@@ -580,7 +734,18 @@ int main()
 	{
 		char a;
 		cin >> a;
+		if (a == '#')
+			break;
 		test.insert(a);
+		test.nprint();
+	}
+	while (1)
+	{
+		char a;
+		cin >> a;
+		if (a == '#')
+			break;
+		test.erase(a);
 		test.nprint();
 	}
 	system("pause");
