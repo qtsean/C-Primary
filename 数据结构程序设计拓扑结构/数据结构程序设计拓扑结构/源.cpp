@@ -163,6 +163,7 @@ void topo::sort()
 				if (f[i] == course[j].first)
 				{
 					del(course[j]);
+					j--;
 				}
 			}
 		}
