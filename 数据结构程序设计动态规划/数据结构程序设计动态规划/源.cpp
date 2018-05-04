@@ -133,6 +133,7 @@ int main()
 	cout << "输入社区数量:" << endl;
 	int size;
 	cin >> size;
+	//cout << "输入社区间的有向距离，没有路径用-1表示" << endl;
 	int **a = new int*[size];
 	for (int i = 0; i < size; i++)
 	{

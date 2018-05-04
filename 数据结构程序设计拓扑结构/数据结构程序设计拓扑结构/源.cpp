@@ -212,7 +212,7 @@ void topo::reset()
 
 int main()
 {
-	cout << "输入数对:" << endl;
+	cout << "输入无环数对:" << endl;
 	topo test1;
 	pair<int, int>a;
 	int b;

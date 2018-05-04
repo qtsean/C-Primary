@@ -52,7 +52,18 @@ public:
 	node<T>* getroot();
 	void nprint();
 	void rotate(node<T>* current);
+	void findvalue(T v);
 };
+
+template<class T>
+void slaytree<T>::findvalue(T v)
+{
+	if (find(v) != NULL)
+		cout << "此值存在" << endl;
+	else
+		cout << "此值不存在" << endl;
+}
+
 template<class T> 
 void slaytree<T>:: erase(T v)
 {
@@ -730,6 +741,7 @@ void slaytree<T>::insert(T v)
 int main()
 {
 	slaytree<char> test;
+	cout << "输入要插入的元素,#结束" << endl;
 	while (1)
 	{
 		char a;
@@ -739,14 +751,29 @@ int main()
 		test.insert(a);
 		test.nprint();
 	}
+	cout << "输入要删除的元素，#结束" << endl;
 	while (1)
 	{
 		char a;
 		cin >> a;
 		if (a == '#')
 			break;
-		test.erase(a);
-		test.nprint();
+		if (test.find(a)) {
+			test.erase(a);
+			test.nprint();
+		}
+		else
+			cout << "此值不存在" << endl;
+	}
+	cout << "输入要查找的元素，#结束" << endl;
+	while (1)
+	{
+		char a;
+		cin >> a;
+		if (a == '#')
+			break;
+		test.findvalue(a);
+
 	}
 	system("pause");
 	return 0;
